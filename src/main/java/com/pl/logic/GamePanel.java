@@ -9,16 +9,16 @@ public class GamePanel extends JPanel implements ActionListener {
 
     private static final int SCREEN_WIDTH = 600;
     private static final int SCREEN_HEIGHT = 600;
-    private static final int UNIT_SIZE = 25;
+    private static final int UNIT_SIZE = 20;
     private static final int GAME_UNITS = (SCREEN_WIDTH * SCREEN_HEIGHT) / UNIT_SIZE;
     private static final int DELAY = 75;
     private final int[] x = new int[GAME_UNITS];
     private final int[] y = new int[GAME_UNITS];
-    private int bodyParts = 6;
+    private int bodyParts;
     private int applesEaten;
     private int appleX;
     private int appleY;
-    private char direction = 'R';
+    private char direction;
     private boolean running = false;
     private Timer timer;
     private final Random random;
@@ -33,6 +33,9 @@ public class GamePanel extends JPanel implements ActionListener {
     }
 
     public void startGame() {
+        direction = 'R';
+        bodyParts = 6;
+        applesEaten = 0;
         newApple();
         running = true;
         timer = new Timer(DELAY, this);
@@ -40,12 +43,8 @@ public class GamePanel extends JPanel implements ActionListener {
     }
 
     public void startNewGame() {
-
-        direction = 'R';
         x[0] = UNIT_SIZE;
         y[0] = UNIT_SIZE;
-        bodyParts = 6;
-        applesEaten = 0;
         startGame();
     }
 
@@ -56,10 +55,13 @@ public class GamePanel extends JPanel implements ActionListener {
 
     public void draw(Graphics g) {
         if (running) {
+            //draw grid
+            /*
             for (int i = 0; i < SCREEN_HEIGHT / UNIT_SIZE; i++) {
                 g.drawLine(i * UNIT_SIZE, 0, i * UNIT_SIZE, SCREEN_HEIGHT);
                 g.drawLine(0, i * UNIT_SIZE, SCREEN_WIDTH, i * UNIT_SIZE);
             }
+            */
             g.setColor(Color.RED);
             g.fillOval(appleX, appleY, UNIT_SIZE, UNIT_SIZE);
 
@@ -126,11 +128,11 @@ public class GamePanel extends JPanel implements ActionListener {
         //check if head touches left border
         if (x[0] < 0) running = false;
         //check if head touches right border
-        if (x[0] > SCREEN_WIDTH) running = false;
+        if (x[0] > SCREEN_WIDTH - 1) running = false;
         //check if head touches top border
         if (y[0] < 0) running = false;
         //check if head touches bottom border
-        if (y[0] > SCREEN_HEIGHT) running = false;
+        if (y[0] > SCREEN_HEIGHT - 1) running = false;
 
         if (!running) timer.stop();
     }
@@ -145,7 +147,6 @@ public class GamePanel extends JPanel implements ActionListener {
 
     @Override
     public void actionPerformed(ActionEvent e) {
-
         if (running) {
             move();
             checkApple();
