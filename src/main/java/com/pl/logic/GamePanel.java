@@ -9,7 +9,7 @@ public class GamePanel extends JPanel implements ActionListener {
 
     private static final int SCREEN_WIDTH = 600;
     private static final int SCREEN_HEIGHT = 600;
-    private static final int UNIT_SIZE = 20;
+    private static final int UNIT_SIZE = 30;
     private static final int GAME_UNITS = (SCREEN_WIDTH * SCREEN_HEIGHT) / UNIT_SIZE;
     private static final int DELAY = 75;
     private final int[] x = new int[GAME_UNITS];
@@ -34,18 +34,14 @@ public class GamePanel extends JPanel implements ActionListener {
 
     public void startGame() {
         direction = 'R';
-        bodyParts = 6;
+        bodyParts = 60;
         applesEaten = 0;
+        x[0] = UNIT_SIZE;
+        y[0] = SCREEN_HEIGHT / 2;
         newApple();
         running = true;
         timer = new Timer(DELAY, this);
         timer.start();
-    }
-
-    public void startNewGame() {
-        x[0] = UNIT_SIZE;
-        y[0] = UNIT_SIZE;
-        startGame();
     }
 
     public void paintComponent(Graphics g) {
@@ -118,12 +114,18 @@ public class GamePanel extends JPanel implements ActionListener {
     }
 
     public void checkCollisions() {
-        //checks if head collides with body
         for (int i = bodyParts; i > 0; i--) {
+            //checks if head collides with body
             if ((x[0] == x[i]) && (y[0] == y[i])) {
                 running = false;
                 break;
             }
+            //checks if apple collides with body
+            if (appleX == x[i] && appleY == y[i]) {
+                System.out.println("appleX: " + appleX + "appleY:" + appleY);
+                newApple();
+            }
+            ;
         }
         //check if head touches left border
         if (x[0] < 0) running = false;
@@ -138,6 +140,10 @@ public class GamePanel extends JPanel implements ActionListener {
     }
 
     public void gameOver(Graphics g) {
+        for (int i = bodyParts; i > 0; i--) {
+            x[i] = -UNIT_SIZE;
+            y[i] = -UNIT_SIZE;
+        }
         //Game Over text
         g.setColor(Color.RED);
         g.setFont(new Font("Ink Free", Font.BOLD, 75));
@@ -172,10 +178,9 @@ public class GamePanel extends JPanel implements ActionListener {
                     if (direction != 'U') direction = 'D';
                     break;
                 case KeyEvent.VK_ENTER:
-                    if (!running) startNewGame();
+                    if (!running) startGame();
                     break;
             }
-
         }
     }
 }
