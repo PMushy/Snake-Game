@@ -9,7 +9,7 @@ public class GamePanel extends JPanel implements ActionListener {
 
     private static final int SCREEN_WIDTH = 600;
     private static final int SCREEN_HEIGHT = 600;
-    private static final int UNIT_SIZE = 30;
+    private static final int UNIT_SIZE = 25;
     private static final int GAME_UNITS = (SCREEN_WIDTH * SCREEN_HEIGHT) / UNIT_SIZE;
     private static final int DELAY = 75;
     private final int[] x = new int[GAME_UNITS];
@@ -20,6 +20,7 @@ public class GamePanel extends JPanel implements ActionListener {
     private int appleY;
     private char direction;
     private boolean running = false;
+    private static boolean gameOn;
     private Timer timer;
     private final Random random;
 
@@ -34,7 +35,7 @@ public class GamePanel extends JPanel implements ActionListener {
 
     public void startGame() {
         direction = 'R';
-        bodyParts = 60;
+        bodyParts = 6;
         applesEaten = 0;
         x[0] = UNIT_SIZE;
         y[0] = SCREEN_HEIGHT / 2;
@@ -68,6 +69,7 @@ public class GamePanel extends JPanel implements ActionListener {
                     g.setColor(new Color(45, 180, 0));
                 }
                 g.fillRect(x[i], y[i], UNIT_SIZE, UNIT_SIZE);
+
             }
             g.setColor(Color.RED);
             g.setFont(new Font("Ink Free", Font.BOLD, 40));
@@ -82,6 +84,13 @@ public class GamePanel extends JPanel implements ActionListener {
     public void newApple() {
         appleX = random.nextInt(SCREEN_WIDTH / UNIT_SIZE) * UNIT_SIZE;
         appleY = random.nextInt(SCREEN_HEIGHT / UNIT_SIZE) * UNIT_SIZE;
+
+        //checks if apple collides with body
+        for (int i = bodyParts; i > 0; i--) {
+            if (appleX == x[i] && appleY == y[i]) {
+                newApple();
+            }
+        }
     }
 
     public void move() {
@@ -114,18 +123,12 @@ public class GamePanel extends JPanel implements ActionListener {
     }
 
     public void checkCollisions() {
+        //checks if head collides with body
         for (int i = bodyParts; i > 0; i--) {
-            //checks if head collides with body
             if ((x[0] == x[i]) && (y[0] == y[i])) {
                 running = false;
                 break;
             }
-            //checks if apple collides with body
-            if (appleX == x[i] && appleY == y[i]) {
-                System.out.println("appleX: " + appleX + "appleY:" + appleY);
-                newApple();
-            }
-            ;
         }
         //check if head touches left border
         if (x[0] < 0) running = false;
@@ -137,6 +140,16 @@ public class GamePanel extends JPanel implements ActionListener {
         if (y[0] > SCREEN_HEIGHT - 1) running = false;
 
         if (!running) timer.stop();
+    }
+
+    public void gamePause() {
+        GamePanel.gameOn = true;
+        timer.stop();
+    }
+
+    public void gameResume() {
+        GamePanel.gameOn = false;
+        timer.start();
     }
 
     public void gameOver(Graphics g) {
@@ -164,6 +177,10 @@ public class GamePanel extends JPanel implements ActionListener {
     public class MyKeyAdapter extends KeyAdapter {
         @Override
         public void keyPressed(KeyEvent e) {
+
+            /**
+             buggy code below (with this you can go backward and lose game by eating body behind you)
+             **/
             switch (e.getKeyCode()) {
                 case KeyEvent.VK_LEFT:
                     if (direction != 'R') direction = 'L';
@@ -179,6 +196,14 @@ public class GamePanel extends JPanel implements ActionListener {
                     break;
                 case KeyEvent.VK_ENTER:
                     if (!running) startGame();
+                    break;
+                //pause game
+                case KeyEvent.VK_ESCAPE:
+                    if (GamePanel.gameOn) {
+                        gameResume();
+                    } else {
+                        gamePause();
+                    }
                     break;
             }
         }
