@@ -11,7 +11,7 @@ public class GamePanel extends JPanel implements ActionListener {
     private static final int SCREEN_HEIGHT = 600;
     private static final int UNIT_SIZE = 25;
     private static final int GAME_UNITS = (SCREEN_WIDTH * SCREEN_HEIGHT) / UNIT_SIZE;
-    private static final int DELAY = 75;
+    private static final int DELAY = 122;
     private final int[] x = new int[GAME_UNITS];
     private final int[] y = new int[GAME_UNITS];
     private int bodyParts;
@@ -21,6 +21,7 @@ public class GamePanel extends JPanel implements ActionListener {
     private char direction;
     private boolean running = false;
     private static boolean gameOn;
+    private boolean isButtonPressed;
     private Timer timer;
     private final Random random;
 
@@ -72,7 +73,7 @@ public class GamePanel extends JPanel implements ActionListener {
 
             }
             g.setColor(Color.RED);
-            g.setFont(new Font("Ink Free", Font.BOLD, 40));
+            g.setFont(new Font("Lato", Font.BOLD, 40));
             FontMetrics metrics = getFontMetrics(g.getFont());
             g.drawString("Score: " + applesEaten, (SCREEN_WIDTH - metrics.stringWidth("Score: " + applesEaten)) / 2, g.getFont().getSize());
 
@@ -159,7 +160,7 @@ public class GamePanel extends JPanel implements ActionListener {
         }
         //Game Over text
         g.setColor(Color.RED);
-        g.setFont(new Font("Ink Free", Font.BOLD, 75));
+        g.setFont(new Font("Lato", Font.BOLD, 75));
         FontMetrics metrics = getFontMetrics(g.getFont());
         g.drawString("Game Over", (SCREEN_WIDTH - metrics.stringWidth("GameOver")) / 2, SCREEN_HEIGHT / 2);
     }
@@ -183,17 +184,30 @@ public class GamePanel extends JPanel implements ActionListener {
              **/
             switch (e.getKeyCode()) {
                 case KeyEvent.VK_LEFT:
-                    if (direction != 'R') direction = 'L';
+                    if (direction != 'R' && !isButtonPressed) {
+                        isButtonPressed = true;
+                        direction = 'L';
+                    }
                     break;
                 case KeyEvent.VK_RIGHT:
-                    if (direction != 'L') direction = 'R';
+                    if (direction != 'L' && !isButtonPressed) {
+                        isButtonPressed = true;
+                        direction = 'R';
+                    }
                     break;
                 case KeyEvent.VK_UP:
-                    if (direction != 'D') direction = 'U';
+                    if (direction != 'D' && !isButtonPressed) {
+                        isButtonPressed = true;
+                        direction = 'U';
+                    }
                     break;
                 case KeyEvent.VK_DOWN:
-                    if (direction != 'U') direction = 'D';
+                    if (direction != 'U' && !isButtonPressed) {
+                        isButtonPressed = true;
+                        direction = 'D';
+                    }
                     break;
+                //new game
                 case KeyEvent.VK_ENTER:
                     if (!running) startGame();
                     break;
@@ -204,6 +218,22 @@ public class GamePanel extends JPanel implements ActionListener {
                     } else {
                         gamePause();
                     }
+                    break;
+            }
+        }
+
+        @Override
+        public void keyReleased(KeyEvent e) {
+
+            /**
+             prevent going backward but the game loses smooth controls
+             **/
+            switch (e.getKeyCode()) {
+                case KeyEvent.VK_LEFT:
+                case KeyEvent.VK_RIGHT:
+                case KeyEvent.VK_UP:
+                case KeyEvent.VK_DOWN:
+                    isButtonPressed = false;
                     break;
             }
         }
